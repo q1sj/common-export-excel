@@ -9,10 +9,13 @@ import java.util.List;
  */
 public class ExportTest {
     public static void main(String[] args) {
-        ExportContext<ExportRecord> exportContext = new ExportContext<>(Arrays.asList(new ExportImpl()), 1000, "C:/",System.out::println);
-        // 模拟查询待导出记录
+        List<Export> exportList = Arrays.asList(new ExportImpl());
+        ExportStatusChangeListener<ExportRecord> changeListener = System.out::println;
+        ExportContext<ExportRecord> exportContext = new ExportContext<>(exportList, 1000, "C:/", changeListener);
+        // 模拟从数据库查询待导出记录
         List<ExportRecord> exports = Arrays.asList(new ExportRecord());
         exportContext.export(exports);
+
     }
 }
 
@@ -22,7 +25,6 @@ class ExportRecord extends AbstractExportRecord{
         setConditions("xxx");
         setFileName("filename");
     }
-
 }
 
 class ExportImpl implements Export{
