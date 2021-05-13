@@ -17,7 +17,8 @@ public abstract class AbstractExportRecord implements Serializable {
 	 */
 	private String fileName;
 	/**
-	 * 导出类型：EVENT、SUBSCRIBE、ARCHIVES、TRAFFIC等
+	 * 导出类型
+	 * 根据code找到对应export实现类
 	 */
 	private String code;
 	/**
