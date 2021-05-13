@@ -19,7 +19,9 @@ public class ExportContext<T extends AbstractExportRecord> {
     private static final Logger log = LoggerFactory.getLogger(ExportContext.class);
     private ExportStatusChangeListener<T> statusChangeListener = new DefaultStatusChangeListener();
 
-    public ExportContext(Collection<Export> exportList, int excelMaxRows, String excelSavePath) {
+    public ExportContext(Collection<Export> exportList,
+                         int excelMaxRows,
+                         String excelSavePath) {
         this.excelMaxRows = excelMaxRows;
         this.excelSavePath = excelSavePath;
         for (Export export : exportList) {
@@ -28,7 +30,8 @@ public class ExportContext<T extends AbstractExportRecord> {
     }
 
     public ExportContext(Collection<Export> exportList,
-                         int excelMaxRows, String excelSavePath,
+                         int excelMaxRows,
+                         String excelSavePath,
                          ExportStatusChangeListener<T> statusChangeListener) {
         this.excelMaxRows = excelMaxRows;
         this.excelSavePath = excelSavePath;

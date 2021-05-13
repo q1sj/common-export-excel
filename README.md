@@ -3,154 +3,38 @@
 只需关心数据查询方法和导出的表头格式  
 使用spring框架后增加导出类型无需修改原有代码  
 
-## [demo](https://github.com/q1sj/common-export/blob/master/src/test/java/com/qsj/export/ExportTest.java)
-```java
-public class ExportTest {
-    public static void main(String[] args) {
-        List<Export> exportList = Arrays.asList(new UserExport());
-        ExportStatusChangeListener<ExportRecord> changeListener = System.out::println;
-        ExportContext<ExportRecord> exportContext = new ExportContext<>(exportList, 1000, "C:/", changeListener);
-        // 模拟从数据库查询待导出记录
-        List<ExportRecord> exports = Arrays.asList(ExportRecord.mock());
-        exportContext.export(exports);
+## 非Spring Demo
 
-    }
-}
-
-class ExportRecord extends AbstractExportRecord{
-    public static ExportRecord mock(){
-        ExportRecord exportRecord = new ExportRecord();
-        exportRecord.setFileName("filename");
-        exportRecord.setConditions("xxx");
-        exportRecord.setCode("user");
-        return exportRecord;
-    }
-}
-
-class UserExport implements Export{
-
-    @Override
-    public String getExportCode() {
-        return "user";
-    }
-
-    @Override
-    public List<?> getExportList(String conditions) {
-        // 此处模拟 根据条件查询 返回结果集
-        return Arrays.asList(new User("qsj",18),new User("admin",19));
-    }
-}
-
-class User{
-    @ExcelProperty("用户名")
-    private String username;
-    @ExcelProperty("年龄")
-    private int age;
-
-    public User(String username, int age) {
-        this.username = username;
-        this.age = age;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-}
-```
-## Spring Demo
-```java
-@Configuration
-public class SpringExportConfig {
-
-    @Autowired
-    private List<Export> exportList;
-    private int excelMaxRows = 1000;
-    private String excelSavePath = "C:/";
-
-    @Bean
-    public ExportContext<ExportRecord> getExportContext() {
-        return new ExportContext<>(exportList, excelMaxRows, excelSavePath);
-    }
-}
-
-/**
- * 模拟一个定时任务
- */
-@Component
-class ExportTask{
-    @Autowired
-    private ExportContext<ExportRecord> exportContext;
-
-    public void run(String ages){
-        // 模拟从数据库查询待导出记录
-        List<ExportRecord> exports = Arrays.asList(ExportRecord.mock());
-        exportContext.export(exports);
-    }
-}
-
-class ExportRecord extends AbstractExportRecord{
-    public static ExportRecord mock(){
-        ExportRecord exportRecord = new ExportRecord();
-        exportRecord.setFileName("filename");
-        exportRecord.setConditions("xxx");
-        exportRecord.setCode("user");
-        return exportRecord;
-    }
-}
-
-@Component
-class UserExport implements Export{
-
-    @Override
-    public String getExportCode() {
-        return "user";
-    }
-
-    @Override
-    public List<?> getExportList(String conditions) {
-        // 此处模拟 根据条件查询 返回结果集
-        return Arrays.asList(new User("qsj",18),new User("admin",19));
-    }
-}
-
-class User{
-    @ExcelProperty("用户名")
-    private String username;
-    @ExcelProperty("年龄")
-    private int age;
-
-    public User(String username, int age) {
-        this.username = username;
-        this.age = age;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-}
-
-```
+````xml
+<!--Step 1. Add the JitPack repository to your build file-->
+        <repositories>
+            <repository>
+                <id>jitpack.io</id>
+                <url>https://jitpack.io</url>
+            </repository>
+        </repositories>
+<!--Step 2. Add the dependency-->
+        <dependency>
+            <groupId>com.github.q1sj</groupId>
+            <artifactId>common-export-excel</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+````
+[demo代码](https://github.com/q1sj/common-export/blob/master/src/test/java/com/qsj/export/ExportTest.java)
+## Spring Boot Demo
+````xml
+<!--Step 1. Add the JitPack repository to your build file-->
+        <repositories>
+            <repository>
+                <id>jitpack.io</id>
+                <url>https://jitpack.io</url>
+            </repository>
+        </repositories>
+<!--Step 2. Add the dependency-->
+        <dependency>
+    	    <groupId>com.github.q1sj</groupId>
+    	    <artifactId>export-spring-boot-starter</artifactId>
+    	    <version>3.0.2</version>
+    	</dependency>
+````
+[demo代码](https://github.com/q1sj/common-export-excel-demo)
