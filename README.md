@@ -20,7 +20,7 @@
             <version>3.0.2</version>
         </dependency>
 ````
-[demo代码](https://github.com/q1sj/common-export/blob/master/src/test/java/com/qsj/export/ExportTest.java)
+[demo代码](https://github.com/q1sj/common-export/blob/master/src/test/java/com/q1sj/export/ExportTest.java)
 ## Spring Boot Demo
 ````xml
 <!--Step 1. Add the JitPack repository to your build file-->
