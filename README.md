@@ -34,7 +34,7 @@
         <dependency>
     	    <groupId>com.github.q1sj</groupId>
     	    <artifactId>export-spring-boot-starter</artifactId>
-    	    <version>3.0.3</version>
+    	    <version>3.0.4v2</version>
     	</dependency>
 ````
 [demo代码](https://github.com/q1sj/common-export-excel-demo)
