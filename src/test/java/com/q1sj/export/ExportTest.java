@@ -13,11 +13,14 @@ public class ExportTest {
     public static void main(String[] args) {
         List<Export> exportList = Arrays.asList(new UserExport());
         ExportStatusChangeListener<ExportRecord> changeListener = System.out::println;
-        ExportContext<ExportRecord> exportContext = new ExportContext<>(exportList, 1000, "C:/", changeListener);
+        ExportContext<ExportRecord> exportContext = new ExportContext<>(exportList,
+                1000,
+                "C:/",
+                changeListener,
+                true);
         // 模拟从数据库查询待导出记录
         List<ExportRecord> exports = Arrays.asList(ExportRecord.mock());
         exportContext.export(exports);
-
     }
 }
 

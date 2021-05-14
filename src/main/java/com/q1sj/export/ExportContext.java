@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -16,26 +17,28 @@ public class ExportContext<T extends AbstractExportRecord> {
     private final Map<String, Export> exportMap = new HashMap<>(16);
     private final int excelMaxRows;
     private final String excelSavePath;
-    private static final Logger log = LoggerFactory.getLogger(ExportContext.class);
+    private final Logger log = LoggerFactory.getLogger(ExportContext.class);
+    private final boolean enableSubList;
     private ExportStatusChangeListener<T> statusChangeListener = new DefaultStatusChangeListener();
 
     public ExportContext(Collection<Export> exportList,
                          int excelMaxRows,
-                         String excelSavePath) {
-        this.excelMaxRows = excelMaxRows;
-        this.excelSavePath = excelSavePath;
-        for (Export export : exportList) {
-            exportMap.put(export.getCode(), export);
-        }
+                         String excelSavePath,
+                         boolean enableSubList) {
+        this(exportList,excelMaxRows,excelSavePath,null,enableSubList);
     }
 
     public ExportContext(Collection<Export> exportList,
                          int excelMaxRows,
                          String excelSavePath,
-                         ExportStatusChangeListener<T> statusChangeListener) {
+                         ExportStatusChangeListener<T> statusChangeListener,
+                         boolean enableSubList) {
         this.excelMaxRows = excelMaxRows;
         this.excelSavePath = excelSavePath;
-        this.statusChangeListener = statusChangeListener;
+        if (statusChangeListener !=null){
+            this.statusChangeListener = statusChangeListener;
+        }
+        this.enableSubList =enableSubList;
         for (Export export : exportList) {
             exportMap.put(export.getCode(), export);
         }
@@ -77,6 +80,45 @@ public class ExportContext<T extends AbstractExportRecord> {
             new File(filePath).mkdirs();
             // 获取导出实体类
             Class<?> exportEntityClass = list.get(0).getClass();
+            this.exportFile(list, filePath, exportEntityClass);
+            packageFile(exportRecord, filePath);
+            log.info("end export {}", filePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+            exportRecord.setStatus(EnumExportStatus.FAIL.value);
+            exportRecord.setStatusName(EnumExportStatus.FAIL.desc);
+            exportRecord.setFailReason(e.getMessage());
+        } finally {
+            statusChangeListener.accept(exportRecord);
+        }
+    }
+
+    /**
+     * 压缩
+     * @param exportRecord
+     * @param filePath
+     */
+    private void packageFile(T exportRecord, String filePath) throws IOException {
+
+        if (FileUtils.zipFiles(filePath, "*", filePath + ".zip")) {
+            // 打包完成 更新数据库导出状态
+            exportRecord.setStatus(EnumExportStatus.SUCCESS.value);
+            exportRecord.setStatusName(EnumExportStatus.SUCCESS.desc);
+            exportRecord.setFilePath(filePath + ".zip");
+            org.apache.commons.io.FileUtils.deleteDirectory(new File(filePath));
+        } else {
+            throw new ExportException(filePath + "package fail");
+        }
+    }
+
+    /**
+     * 导出文件
+     * @param list
+     * @param filePath
+     * @param exportEntityClass
+     */
+    private void exportFile(List<?> list, String filePath, Class<?> exportEntityClass) {
+        if (enableSubList){
             // 大list分割 多excel导出
             // 获取excel_max_rows
             // 分割
@@ -86,23 +128,10 @@ public class ExportContext<T extends AbstractExportRecord> {
                         .sheet("sheet1")
                         .doWrite(lists.get(i));
             }
-            // 压缩
-            if (FileUtils.zipFiles(filePath, "*", filePath + ".zip")) {
-                // 打包完成 更新数据库导出状态
-                exportRecord.setStatus(EnumExportStatus.SUCCESS.value);
-                exportRecord.setStatusName(EnumExportStatus.SUCCESS.desc);
-                exportRecord.setFilePath(filePath + ".zip");
-            } else {
-                throw new ExportException(filePath + "package fail");
-            }
-            log.info("end export {}", filePath);
-        } catch (Exception e) {
-            e.printStackTrace();
-            exportRecord.setStatus(EnumExportStatus.FAIL.value);
-            exportRecord.setStatusName(EnumExportStatus.FAIL.desc);
-            exportRecord.setFailReason(e.getMessage());
-        } finally {
-            statusChangeListener.accept(exportRecord);
+        }else {
+            EasyExcel.write(filePath + "/0.xlsx", exportEntityClass)
+                    .sheet("sheet1")
+                    .doWrite(list);
         }
     }
 
