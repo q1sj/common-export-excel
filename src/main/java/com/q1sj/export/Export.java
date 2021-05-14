@@ -7,12 +7,18 @@ import java.util.List;
  * @date 2020.12.16 16:33
  */
 public interface Export {
+
     /**
-     * 获取导出事件类型
+     * 对应 ExportRecord 的 code
      * @return
      */
     String getCode();
 
+    /**
+     * 获取导出表格对应的实体类
+     * @return
+     */
+    Class<?> getExportEntityClass();
     /**
      * 获取需要导出的list
      * @param conditions

@@ -62,12 +62,12 @@ public class ExportContext<T extends AbstractExportRecord> {
             statusChangeListener.accept(exportRecord);
         }
         try {
-            // 导出
             List<?> list = null;
             // 获取要导出数据
             String conditions = exportRecord.getConditions();
             String code = exportRecord.getCode();
-            list = this.getList(code, conditions);
+            Export export = getExport(code);
+            list =  export.getList(conditions);
             if (list == null || list.isEmpty()) {
                 throw new ExportException("export list is empty");
             }
@@ -79,8 +79,7 @@ public class ExportContext<T extends AbstractExportRecord> {
             // 目录不存在 自动创建
             new File(filePath).mkdirs();
             // 获取导出实体类
-            Class<?> exportEntityClass = list.get(0).getClass();
-            this.exportFile(list, filePath, exportEntityClass);
+            this.exportFile(list, filePath, export.getExportEntityClass());
             packageFile(exportRecord, filePath);
             log.info("end export {}", filePath);
         } catch (Exception e) {
@@ -135,17 +134,6 @@ public class ExportContext<T extends AbstractExportRecord> {
         }
     }
 
-    /**
-     * 获取导出数据list
-     *
-     * @param code
-     * @param conditions
-     * @return
-     */
-    private List<?> getList(String code, String conditions) {
-        Export export = getExport(code);
-        return export.getList(conditions);
-    }
 
     private Export getExport(String code) {
         Export export = exportMap.get(code);
