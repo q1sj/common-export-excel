@@ -25,7 +25,7 @@ public class ExportContext<T extends AbstractExportRecord> {
         this.excelMaxRows = excelMaxRows;
         this.excelSavePath = excelSavePath;
         for (Export export : exportList) {
-            exportMap.put(export.getExportCode(), export);
+            exportMap.put(export.getCode(), export);
         }
     }
 
@@ -37,7 +37,7 @@ public class ExportContext<T extends AbstractExportRecord> {
         this.excelSavePath = excelSavePath;
         this.statusChangeListener = statusChangeListener;
         for (Export export : exportList) {
-            exportMap.put(export.getExportCode(), export);
+            exportMap.put(export.getCode(), export);
         }
     }
 
@@ -63,8 +63,8 @@ public class ExportContext<T extends AbstractExportRecord> {
             List<?> list = null;
             // 获取要导出数据
             String conditions = exportRecord.getConditions();
-
-            list = this.getList(exportRecord.getCode(), conditions);
+            String code = exportRecord.getCode();
+            list = this.getList(code, conditions);
             if (list == null || list.isEmpty()) {
                 throw new ExportException("export list is empty");
             }
@@ -114,7 +114,8 @@ public class ExportContext<T extends AbstractExportRecord> {
      * @return
      */
     private List<?> getList(String code, String conditions) {
-        return getExport(code).getExportList(conditions);
+        Export export = getExport(code);
+        return export.getList(conditions);
     }
 
     private Export getExport(String code) {

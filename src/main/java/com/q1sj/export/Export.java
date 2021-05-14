@@ -11,12 +11,12 @@ public interface Export {
      * 获取导出事件类型
      * @return
      */
-    String getExportCode();
+    String getCode();
 
     /**
      * 获取需要导出的list
      * @param conditions
      * @return
      */
-    List<?> getExportList(String conditions);
+    List<?> getList(String conditions);
 }
