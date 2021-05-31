@@ -25,7 +25,7 @@ public class ExportContext<T extends AbstractExportRecord> {
                          int excelMaxRows,
                          String excelSavePath,
                          boolean enableSubList) {
-        this(exportList,excelMaxRows,excelSavePath,null,enableSubList);
+        this(exportList, excelMaxRows, excelSavePath, null, enableSubList);
     }
 
     public ExportContext(Collection<Export> exportList,
@@ -35,10 +35,10 @@ public class ExportContext<T extends AbstractExportRecord> {
                          boolean enableSubList) {
         this.excelMaxRows = excelMaxRows;
         this.excelSavePath = excelSavePath;
-        if (statusChangeListener !=null){
+        if (statusChangeListener != null) {
             this.statusChangeListener = statusChangeListener;
         }
-        this.enableSubList =enableSubList;
+        this.enableSubList = enableSubList;
         for (Export export : exportList) {
             exportMap.put(export.getCode(), export);
         }
@@ -54,9 +54,9 @@ public class ExportContext<T extends AbstractExportRecord> {
         exportRecords.forEach(this::export);
     }
 
-    public void export(T exportRecord){
+    public void export(T exportRecord) {
         Objects.requireNonNull(exportRecord);
-        if (EnumExportStatus.ING.value!=exportRecord.getStatus()) {
+        if (EnumExportStatus.ING.value != exportRecord.getStatus()) {
             exportRecord.setStatus(EnumExportStatus.ING.value);
             exportRecord.setStatusName(EnumExportStatus.ING.desc);
             statusChangeListener.accept(exportRecord);
@@ -67,9 +67,9 @@ public class ExportContext<T extends AbstractExportRecord> {
             String conditions = exportRecord.getConditions();
             String code = exportRecord.getCode();
             Export export = getExport(code);
-            list =  export.getList(conditions);
+            list = export.getList(conditions);
             if (list == null || list.isEmpty()) {
-                throw new ExportException("export list is empty");
+                throw new ExportException(exportRecord, "export list is empty");
             }
             // 导出
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -94,6 +94,7 @@ public class ExportContext<T extends AbstractExportRecord> {
 
     /**
      * 压缩
+     *
      * @param exportRecord
      * @param filePath
      */
@@ -106,18 +107,19 @@ public class ExportContext<T extends AbstractExportRecord> {
             exportRecord.setFilePath(filePath + ".zip");
             org.apache.commons.io.FileUtils.deleteDirectory(new File(filePath));
         } else {
-            throw new ExportException(filePath + "package fail");
+            throw new ExportException(exportRecord, filePath + "package fail");
         }
     }
 
     /**
      * 导出文件
+     *
      * @param list
      * @param filePath
      * @param exportEntityClass
      */
     private void exportFile(List<?> list, String filePath, Class<?> exportEntityClass) {
-        if (enableSubList){
+        if (enableSubList) {
             // 大list分割 多excel导出
             // 获取excel_max_rows
             // 分割
@@ -127,7 +129,7 @@ public class ExportContext<T extends AbstractExportRecord> {
                         .sheet("sheet1")
                         .doWrite(lists.get(i));
             }
-        }else {
+        } else {
             EasyExcel.write(filePath + "/0.xlsx", exportEntityClass)
                     .sheet("sheet1")
                     .doWrite(list);
@@ -138,7 +140,7 @@ public class ExportContext<T extends AbstractExportRecord> {
     private Export getExport(String code) {
         Export export = exportMap.get(code);
         if (export == null) {
-            throw new ExportException("当前code：" + code + "不能导出");
+            throw new ExportException(null, "当前code：" + code + "不能导出");
         }
         return export;
     }
